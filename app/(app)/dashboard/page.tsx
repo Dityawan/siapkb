@@ -17,6 +17,16 @@ export default function DashboardPage() {
   const [reportPage, setReportPage] = useState(1);
   const REPORTS_PER_PAGE = 10;
 
+  // Export modal
+  const [showExportModal, setShowExportModal] = useState<'xlsx' | 'pdf' | null>(null);
+  const [exportMode, setExportMode] = useState<'all' | 'month' | 'custom'>('all');
+  const [exportMonth, setExportMonth] = useState(() => {
+    const now = new Date();
+    return `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`;
+  });
+  const [exportFrom, setExportFrom] = useState('');
+  const [exportTo, setExportTo] = useState('');
+
   const [data, setData] = useState({
     totalReports: 0,
     thisMonth: 0,
@@ -172,16 +182,20 @@ export default function DashboardPage() {
               <p className="text-gray-600">Saluran Informasi dan Aduan Kualitas Pelayanan KB</p>
             </div>
             <div className="flex items-center gap-2 flex-wrap">
-              <a href="/api/dashboard/export-xlsx" download>
-                <Button variant="outline" className="text-green-700 border-green-300 hover:bg-green-50 gap-1">
-                  ⬇ Unduh XLSX
-                </Button>
-              </a>
-              <a href="/api/dashboard/export-pdf" download>
-                <Button variant="outline" className="text-red-700 border-red-300 hover:bg-red-50 gap-1">
-                  ⬇ Unduh PDF
-                </Button>
-              </a>
+              <Button
+                variant="outline"
+                className="text-green-700 border-green-300 hover:bg-green-50 gap-1"
+                onClick={() => setShowExportModal('xlsx')}
+              >
+                ⬇ Unduh XLSX
+              </Button>
+              <Button
+                variant="outline"
+                className="text-red-700 border-red-300 hover:bg-red-50 gap-1"
+                onClick={() => setShowExportModal('pdf')}
+              >
+                ⬇ Unduh PDF
+              </Button>
               <Button variant="outline" onClick={handleLogout}>
                 Logout
               </Button>
@@ -664,6 +678,110 @@ export default function DashboardPage() {
               </div>
             </CardContent>
             </div>
+          </Card>
+        </div>
+      )}
+      {/* Modal Export */}
+      {showExportModal && (
+        <div className="fixed inset-0 bg-black/60 flex items-center justify-center p-4 z-50">
+          <Card className="w-full max-w-md shadow-2xl">
+            <CardHeader className="border-b pb-4">
+              <div className="flex items-center justify-between">
+                <div>
+                  <CardTitle className="text-lg">
+                    Unduh {showExportModal === 'xlsx' ? 'Excel (XLSX)' : 'PDF'}
+                  </CardTitle>
+                  <CardDescription>Pilih rentang data yang ingin diunduh</CardDescription>
+                </div>
+                <Button variant="ghost" className="h-8 w-8 p-0" onClick={() => setShowExportModal(null)}>
+                  X
+                </Button>
+              </div>
+            </CardHeader>
+            <CardContent className="pt-5 space-y-4">
+              {/* Option: Semua */}
+              <label className={`flex items-center gap-3 p-3 rounded-lg border cursor-pointer transition-all ${exportMode === 'all' ? 'border-blue-500 bg-blue-50' : 'border-gray-200 hover:bg-gray-50'}`}>
+                <input type="radio" name="exportMode" checked={exportMode === 'all'} onChange={() => setExportMode('all')} className="accent-blue-600" />
+                <div>
+                  <p className="font-medium text-sm text-gray-800">Semua Data</p>
+                  <p className="text-xs text-gray-500">Unduh seluruh laporan yang tersimpan</p>
+                </div>
+              </label>
+
+              {/* Option: Bulanan */}
+              <label className={`flex items-center gap-3 p-3 rounded-lg border cursor-pointer transition-all ${exportMode === 'month' ? 'border-blue-500 bg-blue-50' : 'border-gray-200 hover:bg-gray-50'}`}>
+                <input type="radio" name="exportMode" checked={exportMode === 'month'} onChange={() => setExportMode('month')} className="accent-blue-600" />
+                <div className="flex-1">
+                  <p className="font-medium text-sm text-gray-800">Per Bulan</p>
+                  <p className="text-xs text-gray-500 mb-2">Pilih bulan tertentu</p>
+                  {exportMode === 'month' && (
+                    <input
+                      type="month"
+                      value={exportMonth}
+                      onChange={e => setExportMonth(e.target.value)}
+                      className="w-full px-3 py-1.5 border rounded-md text-sm"
+                    />
+                  )}
+                </div>
+              </label>
+
+              {/* Option: Custom Range */}
+              <label className={`flex items-center gap-3 p-3 rounded-lg border cursor-pointer transition-all ${exportMode === 'custom' ? 'border-blue-500 bg-blue-50' : 'border-gray-200 hover:bg-gray-50'}`}>
+                <input type="radio" name="exportMode" checked={exportMode === 'custom'} onChange={() => setExportMode('custom')} className="accent-blue-600" />
+                <div className="flex-1">
+                  <p className="font-medium text-sm text-gray-800">Pilih Tanggal</p>
+                  <p className="text-xs text-gray-500 mb-2">Tentukan rentang tanggal sendiri</p>
+                  {exportMode === 'custom' && (
+                    <div className="flex gap-2">
+                      <div className="flex-1">
+                        <label className="text-xs text-gray-500">Dari</label>
+                        <input
+                          type="date"
+                          value={exportFrom}
+                          onChange={e => setExportFrom(e.target.value)}
+                          className="w-full px-3 py-1.5 border rounded-md text-sm"
+                        />
+                      </div>
+                      <div className="flex-1">
+                        <label className="text-xs text-gray-500">Sampai</label>
+                        <input
+                          type="date"
+                          value={exportTo}
+                          onChange={e => setExportTo(e.target.value)}
+                          className="w-full px-3 py-1.5 border rounded-md text-sm"
+                        />
+                      </div>
+                    </div>
+                  )}
+                </div>
+              </label>
+
+              <Button
+                className="w-full bg-blue-600 hover:bg-blue-700 mt-2"
+                onClick={() => {
+                  let url = `/api/dashboard/export-${showExportModal}`;
+                  const params = new URLSearchParams();
+
+                  if (exportMode === 'month' && exportMonth) {
+                    const [y, m] = exportMonth.split('-');
+                    params.set('from', `${y}-${m}-01`);
+                    const lastDay = new Date(parseInt(y), parseInt(m), 0).getDate();
+                    params.set('to', `${y}-${m}-${lastDay}`);
+                  } else if (exportMode === 'custom') {
+                    if (exportFrom) params.set('from', exportFrom);
+                    if (exportTo) params.set('to', exportTo);
+                  }
+
+                  const qs = params.toString();
+                  if (qs) url += '?' + qs;
+
+                  window.open(url, '_blank');
+                  setShowExportModal(null);
+                }}
+              >
+                📥 Unduh {showExportModal === 'xlsx' ? 'Excel' : 'PDF'}
+              </Button>
+            </CardContent>
           </Card>
         </div>
       )}

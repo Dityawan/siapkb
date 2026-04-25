@@ -26,9 +26,24 @@ function getCategoryLabel(mainCategory: string, reportCategory: string) {
   return map[mainCategory] || mainCategory || '-';
 }
 
-export async function GET() {
+export async function GET(request: Request) {
   try {
-    const surveys = await prisma.survey.findMany({ orderBy: { createdAt: 'desc' } });
+    const { searchParams } = new URL(request.url);
+    const from = searchParams.get('from');
+    const to = searchParams.get('to');
+
+    const where: any = {};
+    if (from || to) {
+      where.createdAt = {};
+      if (from) where.createdAt.gte = new Date(from);
+      if (to) {
+        const toDate = new Date(to);
+        toDate.setHours(23, 59, 59, 999);
+        where.createdAt.lte = toDate;
+      }
+    }
+
+    const surveys = await prisma.survey.findMany({ where, orderBy: { createdAt: 'desc' } });
 
     const doc = new jsPDF({ orientation: 'landscape', unit: 'mm', format: 'a3' });
 
