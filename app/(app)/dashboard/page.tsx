@@ -14,6 +14,8 @@ export default function DashboardPage() {
   const [responseLimit, setResponseLimit] = useState(1000);
   const [storageMaxGB, setStorageMaxGB] = useState(10);
   const [currentUser, setCurrentUser] = useState<any>(null);
+  const [reportPage, setReportPage] = useState(1);
+  const REPORTS_PER_PAGE = 10;
 
   const [data, setData] = useState({
     totalReports: 0,
@@ -37,7 +39,9 @@ export default function DashboardPage() {
         
         const categories = { A: 0, B: 0, C: 0, D: 0, X: 0, Y: 0, Z: 0 };
         const userTypes = { general: 0, healthcare: 0, field: 0, manager: 0 };
-        const recentReports = surveys.slice(0, 5).map((s: any) => {
+        const allReports: any[] = [];
+        
+        surveys.forEach((s: any) => {
           const dateObj = new Date(s.createdAt);
           if (dateObj.getMonth() === currentMonth && dateObj.getFullYear() === currentYear) {
             thisMonthCount++;
@@ -74,37 +78,15 @@ export default function DashboardPage() {
           else if (answers.userType === 'field') displayUserType = 'PKB/PLKB';
           else if (answers.userType === 'manager') displayUserType = 'Pengelola Program';
 
-          return {
+          allReports.push({
             id: s.id,
-            date: dateObj.toISOString().split('T')[0],
+            date: dateObj.toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' }),
             userType: displayUserType,
             category: displayCategory,
             location: answers.tempatKejadian || answers.alamatLengkap || '-',
             status: 'Diterima',
             fullData: s
-          };
-        });
-
-        // Also count for all surveys (not just top 5)
-        surveys.slice(5).forEach((s: any) => {
-          const dateObj = new Date(s.createdAt);
-          if (dateObj.getMonth() === currentMonth && dateObj.getFullYear() === currentYear) {
-            thisMonthCount++;
-          }
-          const answers = s.answers || {};
-          if (answers.userType === 'general') userTypes.general++;
-          else if (answers.userType === 'healthcare') userTypes.healthcare++;
-          else if (answers.userType === 'field') userTypes.field++;
-          else if (answers.userType === 'manager') userTypes.manager++;
-          
-          if (answers.mainCategory === 'contraception') {
-            if (answers.reportCategory === 'A') categories.A++;
-            else if (answers.reportCategory === 'B') categories.B++;
-            else if (answers.reportCategory === 'C') categories.C++;
-            else if (answers.reportCategory === 'D') categories.D++;
-          } else if (answers.mainCategory === 'sdm') categories.X++;
-          else if (answers.mainCategory === 'sarana') categories.Y++;
-          else if (answers.mainCategory === 'prosedur') categories.Z++;
+          });
         });
 
         setData({
@@ -112,9 +94,10 @@ export default function DashboardPage() {
           thisMonth: thisMonthCount,
           categories,
           userTypes,
-          recentReports,
+          recentReports: allReports,
           isLoading: false
         });
+        setReportPage(1);
       }
     } catch (error) {
       console.error("Error fetching data:", error);
@@ -356,7 +339,7 @@ export default function DashboardPage() {
         <Card>
           <CardHeader>
             <CardTitle>Laporan Terbaru</CardTitle>
-            <CardDescription>Daftar laporan paling baru yang masuk</CardDescription>
+            <CardDescription>Daftar laporan paling baru yang masuk ({data.recentReports.length} total)</CardDescription>
           </CardHeader>
           <CardContent>
             <div className="overflow-x-auto">
@@ -372,7 +355,9 @@ export default function DashboardPage() {
                 </thead>
                 <tbody>
                   {data.recentReports.length > 0 ? (
-                    data.recentReports.map((report) => (
+                    data.recentReports
+                      .slice((reportPage - 1) * REPORTS_PER_PAGE, reportPage * REPORTS_PER_PAGE)
+                      .map((report) => (
                       <tr key={report.id} className="border-b hover:bg-gray-50">
                         <td className="py-3 px-4">{report.date}</td>
                         <td className="py-3 px-4">{report.userType}</td>
@@ -412,6 +397,46 @@ export default function DashboardPage() {
                 </tbody>
               </table>
             </div>
+
+            {/* Pagination */}
+            {data.recentReports.length > REPORTS_PER_PAGE && (
+              <div className="flex items-center justify-between pt-4 border-t mt-4">
+                <p className="text-xs text-gray-500">
+                  Menampilkan {(reportPage - 1) * REPORTS_PER_PAGE + 1}-{Math.min(reportPage * REPORTS_PER_PAGE, data.recentReports.length)} dari {data.recentReports.length} laporan
+                </p>
+                <div className="flex gap-1">
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    disabled={reportPage === 1}
+                    onClick={() => setReportPage(p => p - 1)}
+                    className="text-xs h-8 px-3"
+                  >
+                    ← Sebelumnya
+                  </Button>
+                  {Array.from({ length: Math.ceil(data.recentReports.length / REPORTS_PER_PAGE) }, (_, i) => i + 1).map(page => (
+                    <Button
+                      key={page}
+                      variant={reportPage === page ? 'default' : 'outline'}
+                      size="sm"
+                      onClick={() => setReportPage(page)}
+                      className={`text-xs h-8 w-8 p-0 ${reportPage === page ? 'bg-blue-600 hover:bg-blue-700' : ''}`}
+                    >
+                      {page}
+                    </Button>
+                  ))}
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    disabled={reportPage >= Math.ceil(data.recentReports.length / REPORTS_PER_PAGE)}
+                    onClick={() => setReportPage(p => p + 1)}
+                    className="text-xs h-8 px-3"
+                  >
+                    Selanjutnya →
+                  </Button>
+                </div>
+              </div>
+            )}
           </CardContent>
         </Card>
 
