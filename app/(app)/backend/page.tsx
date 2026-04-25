@@ -69,6 +69,11 @@ export default function BackendPage() {
   const [settingsSaving, setSettingsSaving] = useState(false);
   const [settingsMsg, setSettingsMsg] = useState('');
 
+  // R2 File Manager
+  const [r2Files, setR2Files] = useState<any[]>([]);
+  const [r2FilesLoading, setR2FilesLoading] = useState(true);
+  const [r2Deleting, setR2Deleting] = useState<string | null>(null);
+
   const fetchStatus = useCallback(async () => {
     setLoading(true);
     try {
@@ -111,7 +116,31 @@ export default function BackendPage() {
     } catch (e) { console.error(e); } finally { setLogsLoading(false); }
   }, []);
 
-  useEffect(() => { fetchStatus(); fetchUsers(); fetchSettings(); fetchLogs(); }, [fetchStatus, fetchUsers, fetchSettings, fetchLogs]);
+  const fetchR2Files = useCallback(async () => {
+    setR2FilesLoading(true);
+    try {
+      const res = await fetch('/api/backend/files?t=' + Date.now());
+      const json = await res.json();
+      if (json.success) setR2Files(json.files);
+    } catch (e) { console.error(e); } finally { setR2FilesLoading(false); }
+  }, []);
+
+  const handleDeleteFile = async (key: string) => {
+    if (!confirm(`Hapus file "${key}" dari R2 Storage? Tindakan ini tidak bisa dibatalkan.`)) return;
+    setR2Deleting(key);
+    try {
+      const res = await fetch('/api/backend/files', { method: 'DELETE', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ key }) });
+      const json = await res.json();
+      if (json.success) {
+        fetchR2Files();
+        fetchStatus(); // refresh storage stats too
+      } else {
+        alert('Gagal menghapus: ' + json.error);
+      }
+    } catch (e: any) { alert('Error: ' + e.message); } finally { setR2Deleting(null); }
+  };
+
+  useEffect(() => { fetchStatus(); fetchUsers(); fetchSettings(); fetchLogs(); fetchR2Files(); }, [fetchStatus, fetchUsers, fetchSettings, fetchLogs, fetchR2Files]);
 
   const handleSaveSettings = async () => {
     setSettingsSaving(true); setSettingsMsg('');
@@ -462,6 +491,70 @@ export default function BackendPage() {
           </button>
         </Card>
 
+        {/* R2 FILE MANAGER */}
+        <Card style={{ marginBottom: '1.5rem' }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
+            <SectionTitle icon="📁" title="R2 Storage File Manager" />
+            <button onClick={fetchR2Files} disabled={r2FilesLoading} style={{ padding: '6px 12px', background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '6px', color: '#94a3b8', fontSize: '0.75rem', cursor: 'pointer' }}>
+              {r2FilesLoading ? '⏳ Memuat...' : '🔄 Refresh'}
+            </button>
+          </div>
+          <p style={{ color: '#475569', fontSize: '0.82rem', marginBottom: '1rem', marginTop: '-0.5rem' }}>
+            Kelola file yang tersimpan di Cloudflare R2 bucket. Total: <strong style={{ color: '#94a3b8' }}>{r2Files.length} file</strong>
+          </p>
+          <div style={{ borderRadius: '8px', border: '1px solid rgba(255,255,255,0.08)', overflow: 'hidden' }}>
+            <div style={{ maxHeight: '400px', overflowY: 'auto' }}>
+              <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.82rem' }}>
+                <thead>
+                  <tr style={{ background: 'rgba(255,255,255,0.03)', position: 'sticky', top: 0, zIndex: 1 }}>
+                    <th style={{ padding: '10px 12px', textAlign: 'left', color: '#64748b', fontWeight: 600, borderBottom: '1px solid rgba(255,255,255,0.08)' }}>Nama File</th>
+                    <th style={{ padding: '10px 12px', textAlign: 'right', color: '#64748b', fontWeight: 600, borderBottom: '1px solid rgba(255,255,255,0.08)', width: '80px' }}>Ukuran</th>
+                    <th style={{ padding: '10px 12px', textAlign: 'center', color: '#64748b', fontWeight: 600, borderBottom: '1px solid rgba(255,255,255,0.08)', width: '140px' }}>Tanggal</th>
+                    <th style={{ padding: '10px 12px', textAlign: 'center', color: '#64748b', fontWeight: 600, borderBottom: '1px solid rgba(255,255,255,0.08)', width: '120px' }}>Aksi</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {r2FilesLoading ? (
+                    <tr><td colSpan={4} style={{ padding: '2rem', textAlign: 'center', color: '#475569' }}>Memuat daftar file...</td></tr>
+                  ) : r2Files.length === 0 ? (
+                    <tr><td colSpan={4} style={{ padding: '2rem', textAlign: 'center', color: '#475569' }}>Tidak ada file di bucket.</td></tr>
+                  ) : (
+                    r2Files.map((file: any) => (
+                      <tr key={file.key} style={{ borderBottom: '1px solid rgba(255,255,255,0.04)' }}>
+                        <td style={{ padding: '10px 12px' }}>
+                          <div style={{ display: 'flex', flexDirection: 'column', gap: '2px' }}>
+                            <span style={{ color: '#e2e8f0', fontWeight: 500, wordBreak: 'break-all', fontSize: '0.8rem' }}>{file.key}</span>
+                            {file.url && (
+                              <a href={file.url} target="_blank" rel="noopener noreferrer" style={{ color: '#60a5fa', fontSize: '0.72rem', textDecoration: 'none' }}>
+                                Buka ↗
+                              </a>
+                            )}
+                          </div>
+                        </td>
+                        <td style={{ padding: '10px 12px', textAlign: 'right', color: '#94a3b8', fontSize: '0.78rem', whiteSpace: 'nowrap' }}>
+                          {file.size < 1024 ? `${file.size} B` : file.size < 1024 * 1024 ? `${(file.size / 1024).toFixed(1)} KB` : `${file.sizeMB} MB`}
+                        </td>
+                        <td style={{ padding: '10px 12px', textAlign: 'center', color: '#475569', fontSize: '0.78rem', whiteSpace: 'nowrap' }}>
+                          {file.lastModified ? new Date(file.lastModified).toLocaleDateString('id-ID', { day: '2-digit', month: 'short', year: 'numeric' }) : '-'}
+                        </td>
+                        <td style={{ padding: '10px 12px', textAlign: 'center' }}>
+                          <button
+                            onClick={() => handleDeleteFile(file.key)}
+                            disabled={r2Deleting === file.key}
+                            style={{ padding: '4px 12px', borderRadius: '6px', border: 'none', fontSize: '0.75rem', fontWeight: 600, cursor: 'pointer', background: 'rgba(239,68,68,0.15)', color: '#f87171', opacity: r2Deleting === file.key ? 0.5 : 1 }}
+                          >
+                            {r2Deleting === file.key ? '⏳ Menghapus...' : '🗑️ Hapus'}
+                          </button>
+                        </td>
+                      </tr>
+                    ))
+                  )}
+                </tbody>
+              </table>
+            </div>
+          </div>
+          <p style={{ color: '#475569', fontSize: '0.72rem', marginTop: '0.75rem', marginBottom: 0 }}>⚠️ Menghapus file bersifat permanen dan tidak dapat dikembalikan.</p>
+        </Card>
 
 
         {/* LOGIN LOGS */}
