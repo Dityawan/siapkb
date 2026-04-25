@@ -141,9 +141,18 @@ export default function DashboardPage() {
       }
     }).catch(() => {});
 
-    // Fetch storage info dari R2
-    fetch('/api/test/storage?t=' + Date.now()).then(r => r.json()).then(json => {
-      if (json.success) setStorage(json);
+    // Fetch storage info dari status API (R2 data included)
+    fetch('/api/backend/status?t=' + Date.now()).then(r => r.json()).then(json => {
+      if (json.success && json.data?.r2?.status === 'ok') {
+        setStorage({
+          success: true,
+          totalFiles: json.data.r2.totalFiles,
+          usedMB: json.data.r2.usedMB,
+          usedGB: json.data.r2.usedGB,
+          freeTierGB: json.data.r2.freeTierGB,
+          usedPercent: json.data.r2.usedPercent,
+        });
+      }
     }).catch(() => {});
   }, []);
 
