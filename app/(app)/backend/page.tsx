@@ -462,48 +462,7 @@ export default function BackendPage() {
           </button>
         </Card>
 
-        {/* SYSTEM ERROR LOGS */}
-        <Card style={{ marginBottom: '1.5rem' }}>
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
-            <SectionTitle icon="📋" title="System Error Logs" />
-            <button style={{ padding: '6px 12px', background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '6px', color: '#94a3b8', fontSize: '0.75rem', cursor: 'pointer' }}>
-              Bersihkan Log
-            </button>
-          </div>
-          <div style={{ background: '#0f172a', padding: '1.25rem', borderRadius: '8px', border: '1px solid rgba(255,255,255,0.05)', height: '250px', overflowY: 'auto', fontFamily: 'monospace', fontSize: '0.82rem', color: '#cbd5e1', boxShadow: 'inset 0 2px 10px rgba(0,0,0,0.2)' }}>
-            <div style={{ display: 'flex', gap: '10px', marginBottom: '8px' }}>
-              <span style={{ color: '#64748b' }}>2026-04-25 08:12:05</span>
-              <span style={{ color: '#60a5fa' }}>[INFO]</span>
-              <span>System monitor initialized successfully.</span>
-            </div>
-            <div style={{ display: 'flex', gap: '10px', marginBottom: '8px' }}>
-              <span style={{ color: '#64748b' }}>2026-04-25 08:12:07</span>
-              <span style={{ color: '#60a5fa' }}>[INFO]</span>
-              <span>Connected to MySQL Database.</span>
-            </div>
-            <div style={{ display: 'flex', gap: '10px', marginBottom: '8px' }}>
-              <span style={{ color: '#64748b' }}>2026-04-25 08:15:22</span>
-              <span style={{ color: '#f59e0b' }}>[WARN]</span>
-              <span>GOOGLE_SERVICE_ACCOUNT not found in environment.</span>
-            </div>
-            <div style={{ display: 'flex', gap: '10px', marginBottom: '8px' }}>
-              <span style={{ color: '#64748b' }}>2026-04-25 08:15:22</span>
-              <span style={{ color: '#f59e0b' }}>[WARN]</span>
-              <span>GOOGLE_DRIVE_FOLDER_ID not found in environment.</span>
-            </div>
-            <div style={{ display: 'flex', gap: '10px', marginBottom: '8px' }}>
-              <span style={{ color: '#64748b' }}>2026-04-25 09:21:20</span>
-              <span style={{ color: '#4ade80' }}>[OK]</span>
-              <span>R2 Storage connection verified.</span>
-            </div>
-            <div style={{ display: 'flex', gap: '10px', marginBottom: '8px' }}>
-              <span style={{ color: '#64748b' }}>2026-04-25 10:45:00</span>
-              <span style={{ color: '#4ade80' }}>[OK]</span>
-              <span>No critical errors detected in the current session.</span>
-            </div>
-          </div>
-          <p style={{ color: '#475569', fontSize: '0.72rem', marginTop: '0.75rem', marginBottom: 0 }}>Log ini hanya menyimpan riwayat sementara (in-memory) dan akan hilang saat server direstart.</p>
-        </Card>
+
 
         {/* LOGIN LOGS */}
         <Card style={{ marginBottom: '1.5rem' }}>
