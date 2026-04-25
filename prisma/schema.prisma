@@ -1,0 +1,49 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+model Survey {
+  id        String   @id @default(cuid())
+  name      String?
+  email     String?
+  phone     String?
+  company   String?
+  message   String?  @db.Text
+  answers   Json?    // Optional: for any flexible custom survey questions
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model User {
+  id        String   @id @default(cuid())
+  name      String
+  username  String   @unique
+  password  String
+  role      String   @default("admin")
+  isActive  Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Setting {
+  id        String   @id @default(cuid())
+  key       String   @unique
+  value     String   @db.Text
+  label     String?
+  updatedAt DateTime @updatedAt
+}
+
+model LoginLog {
+  id        String   @id @default(cuid())
+  username  String
+  ipAddress String?
+  userAgent String?
+  status    String   @default("success") // "success" or "failed"
+  createdAt DateTime @default(now())
+}
+
