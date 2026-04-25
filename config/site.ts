@@ -1,9 +1,9 @@
 export const siteConfig = {
-	name: "Metronic SaaS",
-	url: "https://metronic-saas.keenthemes.com",
-	ogImage: "https://metronic-saas.keenthemes.com/og.jpg",
+	name: "SIAP KB Form By buatweb.cloud",
+	url: "https://buatweb.cloud",
+	ogImage: "",
 	description:
-		"Metronic SaaS - Landing page template built with Next.js and Tailwind CSS",
+		"SIAP KB - Saluran Informasi dan Aduan Kualitas Pelayanan KB",
 	links: {
 		twitter: "https://x.com/keenthemes",
 		github: "https://github.com/keenthemes",
