@@ -132,8 +132,8 @@ export default function DashboardPage() {
       }
     }).catch(() => {});
 
-    // Fetch settings dari /backend
-    fetch('/api/backend/settings?t=' + Date.now()).then(r => r.json()).then(json => {
+    // Fetch settings (accessible for all logged-in users)
+    fetch('/api/dashboard/settings?t=' + Date.now()).then(r => r.json()).then(json => {
       if (json.success) {
         setShowStorage(json.data?.storage_show_on_dashboard?.value === 'true');
         setStorageMaxGB(parseFloat(json.data?.storage_max_gb?.value || '10'));
@@ -141,18 +141,9 @@ export default function DashboardPage() {
       }
     }).catch(() => {});
 
-    // Fetch storage info dari status API (R2 data included)
-    fetch('/api/backend/status?t=' + Date.now()).then(r => r.json()).then(json => {
-      if (json.success && json.data?.r2?.status === 'ok') {
-        setStorage({
-          success: true,
-          totalFiles: json.data.r2.totalFiles,
-          usedMB: json.data.r2.usedMB,
-          usedGB: json.data.r2.usedGB,
-          freeTierGB: json.data.r2.freeTierGB,
-          usedPercent: json.data.r2.usedPercent,
-        });
-      }
+    // Fetch storage info (accessible for all logged-in users)
+    fetch('/api/dashboard/storage?t=' + Date.now()).then(r => r.json()).then(json => {
+      if (json.success) setStorage(json);
     }).catch(() => {});
   }, []);
 
