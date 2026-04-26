@@ -1,19 +1,9 @@
 import { NextResponse } from 'next/server';
 import prisma from '@/lib/prisma';
-import { S3Client, PutObjectCommand } from '@aws-sdk/client-s3';
+import { getR2Client, getR2Config } from '@/lib/r2';
+import { PutObjectCommand } from '@aws-sdk/client-s3';
 
 export const dynamic = 'force-dynamic';
-
-function getR2Client() {
-  return new S3Client({
-    region: 'auto',
-    endpoint: `https://${process.env.R2_ACCOUNT_ID}.r2.cloudflarestorage.com`,
-    credentials: {
-      accessKeyId: process.env.R2_ACCESS_KEY!,
-      secretAccessKey: process.env.R2_SECRET_KEY!,
-    },
-  });
-}
 
 export async function POST(request: Request) {
   try {
@@ -35,32 +25,7 @@ export async function POST(request: Request) {
       return NextResponse.json({ success: false, error: "Data tidak boleh kosong" }, { status: 400 });
     }
 
-    // Handle file upload ke Cloudflare R2
-    const file = formData.get('file') as File | null;
-    if (file && file.size > 0) {
-      const bucket = process.env.R2_BUCKET;
-      const publicUrl = process.env.R2_PUBLIC_URL?.replace(/\/$/, '');
-
-      if (bucket && publicUrl) {
-        const arrayBuffer = await file.arrayBuffer();
-        const buffer = Buffer.from(arrayBuffer);
-        const safeName = file.name.toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9.\-_]/g, '');
-        const uniqueName = `${Date.now()}-${safeName}`;
-
-        const r2 = getR2Client();
-        await r2.send(new PutObjectCommand({
-          Bucket: bucket,
-          Key: uniqueName,
-          Body: buffer,
-          ContentType: file.type,
-          ContentLength: file.size,
-        }));
-
-        answers.fileUrl = `${publicUrl}/${uniqueName}`;
-        answers.fileName = file.name;
-      }
-    }
-
+    // Simpan ke database DULU (cepat, ~50ms) agar user tidak menunggu upload
     const survey = await prisma.survey.create({
       data: {
         name: name || null,
@@ -71,6 +36,42 @@ export async function POST(request: Request) {
         answers: answers || null,
       },
     });
+
+    // Handle file upload ke Cloudflare R2 SETELAH DB save
+    const file = formData.get('file') as File | null;
+    if (file && file.size > 0) {
+      const { bucket, publicUrl } = getR2Config();
+
+      if (bucket && publicUrl) {
+        try {
+          const arrayBuffer = await file.arrayBuffer();
+          const buffer = Buffer.from(arrayBuffer);
+          const safeName = file.name.toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9.\-_]/g, '');
+          const uniqueName = `${Date.now()}-${safeName}`;
+
+          const r2 = getR2Client();
+          await r2.send(new PutObjectCommand({
+            Bucket: bucket,
+            Key: uniqueName,
+            Body: buffer,
+            ContentType: file.type,
+            ContentLength: file.size,
+          }));
+
+          // Update record dengan URL file
+          answers.fileUrl = `${publicUrl}/${uniqueName}`;
+          answers.fileName = file.name;
+
+          await prisma.survey.update({
+            where: { id: survey.id },
+            data: { answers },
+          });
+        } catch (uploadError) {
+          // File upload gagal, tapi data survey sudah tersimpan
+          console.error('R2 upload error (survey already saved):', uploadError);
+        }
+      }
+    }
 
     return NextResponse.json({ success: true, data: survey }, { status: 201 });
   } catch (error) {

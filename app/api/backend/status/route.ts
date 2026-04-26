@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import prisma from '@/lib/prisma';
-import { S3Client, ListObjectsV2Command, HeadBucketCommand } from '@aws-sdk/client-s3';
+import { ListObjectsV2Command } from '@aws-sdk/client-s3';
+import { getR2Client } from '@/lib/r2';
 
 export const dynamic = 'force-dynamic';
 
@@ -41,11 +42,7 @@ export async function GET() {
         console.error('Error fetching storage setting:', e);
       }
 
-      const r2 = new S3Client({
-        region: 'auto',
-        endpoint: `https://${accountId}.r2.cloudflarestorage.com`,
-        credentials: { accessKeyId: accessKey, secretAccessKey: secretKey },
-      });
+      const r2 = getR2Client();
 
       let totalSize = 0, totalFiles = 0;
       let token: string | undefined;

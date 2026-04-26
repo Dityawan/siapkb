@@ -1,18 +1,8 @@
 import { NextResponse } from 'next/server';
-import { S3Client, ListObjectsV2Command, DeleteObjectCommand } from '@aws-sdk/client-s3';
+import { ListObjectsV2Command, DeleteObjectCommand } from '@aws-sdk/client-s3';
+import { getR2Client } from '@/lib/r2';
 
 export const dynamic = 'force-dynamic';
-
-function getR2Client() {
-  return new S3Client({
-    region: 'auto',
-    endpoint: `https://${process.env.R2_ACCOUNT_ID}.r2.cloudflarestorage.com`,
-    credentials: {
-      accessKeyId: process.env.R2_ACCESS_KEY!,
-      secretAccessKey: process.env.R2_SECRET_KEY!,
-    },
-  });
-}
 
 // GET - List all files in R2 bucket
 export async function GET() {
