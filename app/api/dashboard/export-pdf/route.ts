@@ -116,7 +116,7 @@ export async function GET(request: Request) {
       didDrawCell: (data: any) => {
         if (data.section === 'body' && data.column.index === 7) {
           const s = surveys[data.row.index];
-          const fileUrl = s.answers?.fileUrl;
+          const fileUrl = (s.answers as any)?.fileUrl;
           if (fileUrl) {
             (doc as any).link(data.cell.x, data.cell.y, data.cell.width, data.cell.height, { url: fileUrl });
           }
