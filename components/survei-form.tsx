@@ -12,7 +12,7 @@ import AlamatPelaporField, { AlamatPelaporValue } from '@/components/alamat-pela
 type UserType = 'general' | 'healthcare' | 'field' | 'manager' | null;
 type MainReportCategory = 'contraception' | 'sdm' | 'sarana' | 'prosedur' | null;
 type IncidentCategory = 'A' | 'B' | 'C' | 'D' | null;
-type FormStep = 'consent' | 'userType' | 'identity' | 'location' | 'category' | 'incident' | 'complete';
+type FormStep = 'consent' | 'userType' | 'identity' | 'category' | 'incident' | 'complete';
 
 interface FormData {
   // Common fields
@@ -160,14 +160,6 @@ export default function SurveiForm() {
   };
 
   const handleIdentitySubmit = (data: FormData) => {
-    if (userType === 'healthcare') {
-      setStep('location');
-    } else {
-      setStep('category');
-    }
-  };
-
-  const handleLocationSubmit = (data: FormData) => {
     setStep('category');
   };
 
@@ -507,83 +499,6 @@ export default function SurveiForm() {
                 Kembali
               </Button>
               <Button type="submit" className="flex-1 bg-blue-600 hover:bg-blue-700">
-                {userType === 'healthcare' ? 'Next' : 'Lanjutkan'}
-              </Button>
-            </div>
-          </form>
-        </CardContent>
-      </Card>
-    );
-  }
-
-  // Location Step (for healthcare and field workers)
-  if (step === 'location') {
-    return (
-      <Card className="w-full max-w-2xl mx-auto">
-        <CardHeader>
-          <CardTitle>Data Lokasi</CardTitle>
-          <CardDescription>Mohon isi data lokasi yang sesuai dengan kondisi Anda</CardDescription>
-        </CardHeader>
-        <CardContent>
-          <form onSubmit={handleSubmit(handleLocationSubmit)} className="space-y-4 [&_[data-slot=label]]:mb-2">
-            <div>
-              <Label htmlFor="provinsi">Provinsi *</Label>
-              <Input
-                id="provinsi"
-                {...register('provinsi', { required: 'Provinsi wajib diisi' })}
-                placeholder="Masukkan provinsi"
-                className={errors.provinsi ? 'border-red-500' : ''}
-              />
-              {errors.provinsi && <p className="text-red-500 text-sm mt-1">{errors.provinsi.message}</p>}
-            </div>
-
-            <div>
-              <Label htmlFor="kabupatenKota">Kabupaten/Kota *</Label>
-              <Input
-                id="kabupatenKota"
-                {...register('kabupatenKota', { required: 'Kabupaten/Kota wajib diisi' })}
-                placeholder="Masukkan kabupaten/kota"
-                className={errors.kabupatenKota ? 'border-red-500' : ''}
-              />
-              {errors.kabupatenKota && <p className="text-red-500 text-sm mt-1">{errors.kabupatenKota.message}</p>}
-            </div>
-
-            <div>
-              <Label htmlFor="kecamatan">Kecamatan *</Label>
-              <Input
-                id="kecamatan"
-                {...register('kecamatan', { required: 'Kecamatan wajib diisi' })}
-                placeholder="Masukkan kecamatan"
-                className={errors.kecamatan ? 'border-red-500' : ''}
-              />
-              {errors.kecamatan && <p className="text-red-500 text-sm mt-1">{errors.kecamatan.message}</p>}
-            </div>
-
-            <div>
-              <Label htmlFor="kelurahan">
-                {userType === 'healthcare' ? 'Kelurahan *' : 'Desa *'}
-              </Label>
-              <Input
-                id="kelurahan"
-                {...register(userType === 'healthcare' ? 'kelurahan' : 'desa', { 
-                  required: 'Kelurahan/Desa wajib diisi' 
-                })}
-                placeholder={`Masukkan ${userType === 'healthcare' ? 'kelurahan' : 'desa'}`}
-                className={errors.kelurahan || errors.desa ? 'border-red-500' : ''}
-              />
-              {(errors.kelurahan || errors.desa) && <p className="text-red-500 text-sm mt-1">Wajib diisi</p>}
-            </div>
-
-            <div className="flex flex-col-reverse sm:flex-row gap-2 sm:gap-3 pt-4">
-              <Button
-                type="button"
-                variant="outline"
-                className="flex-1"
-                onClick={() => setStep('identity')}
-              >
-                Kembali
-              </Button>
-              <Button type="submit" className="flex-1 bg-blue-600 hover:bg-blue-700">
                 Lanjutkan
               </Button>
             </div>
@@ -592,6 +507,7 @@ export default function SurveiForm() {
       </Card>
     );
   }
+
 
   // Category Selection Step
   if (step === 'category') {
@@ -645,13 +561,7 @@ export default function SurveiForm() {
             <Button
               variant="outline"
               className="flex-1"
-              onClick={() => {
-                if (userType === 'healthcare') {
-                  setStep('location');
-                } else {
-                  setStep('identity');
-                }
-              }}
+              onClick={() => setStep('identity')}
             >
               Kembali
             </Button>
