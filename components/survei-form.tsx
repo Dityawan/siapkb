@@ -70,17 +70,17 @@ const categoryDescriptions = {
 };
 
 const generalServiceOptions = [
-  'Kondom',
-  'Pil',
+  'Pil KB',
   'Suntik',
   'Implan/Susuk KB',
   'IUD/Spiral',
-  'Metode Operasi Wanita (MOW)/Tubektomi',
-  'Metode Operasi Pria (MOP)/Vasektomi',
+  'Kondom',
+  'Metode Operasi Wanita (MOW) / Tubektomi',
+  'Metode Operasi Pria (MOP) / Vasektomi',
 ];
 
-const alokonOptions = ['Kondom', 'Pil', 'Suntik', 'Implan/Susuk KB', 'IUD/Spiral'];
-const bmhpOptions = ['Syringe/Suntikan'];
+const alokonOptions = ['Pil KB', 'Suntik', 'Implan/Susuk KB', 'IUD/Spiral', 'Kondom'];
+const bmhpOptions = ['Syringe/Suntikan', 'Lainnya'];
 
 export default function SurveiForm() {
   const [step, setStep] = useState<FormStep>('consent');
@@ -348,11 +348,11 @@ export default function SurveiForm() {
         <CardContent>
           <form onSubmit={handleSubmit(handleIdentitySubmit)} className="space-y-4 [&_[data-slot=label]]:mb-2">
             <div>
-              <Label htmlFor="nama">Nama *</Label>
+              <Label htmlFor="nama">Nama Lengkap *</Label>
               <Input
                 id="nama"
                 {...register('nama', { required: 'Nama wajib diisi' })}
-                placeholder="Masukkan nama Anda"
+                placeholder="Masukan Nama Lengkap Anda"
                 className={errors.nama ? 'border-red-500' : ''}
               />
               {errors.nama && <p className="text-red-500 text-sm mt-1">{errors.nama.message}</p>}
@@ -402,7 +402,7 @@ export default function SurveiForm() {
             </div>
 
             <div>
-              <Label htmlFor="noHp">No. HP *</Label>
+              <Label htmlFor="noHp">No. HP/WhatsApp Aktif *</Label>
               <Input
                 id="noHp"
                 {...register('noHp', {
@@ -412,7 +412,7 @@ export default function SurveiForm() {
                     message: 'No. HP hanya boleh angka',
                   },
                 })}
-                placeholder="Masukkan nomor HP Anda"
+                placeholder="Masukkan nomor HP / WhatsApp aktif Anda"
                 type="text"
                 inputMode="numeric"
                 pattern="[0-9]*"
