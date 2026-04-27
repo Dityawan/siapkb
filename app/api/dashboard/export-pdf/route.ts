@@ -91,7 +91,7 @@ export async function GET(request: Request) {
         getCategoryLabel(a.mainCategory, a.reportCategory),
         detailKejadian,
         s.message || '-',
-        a.fileUrl || '-'
+        a.fileUrl ? (a.fileName || 'Lihat Lampiran') : '-'
       ];
     });
 
@@ -110,9 +110,18 @@ export async function GET(request: Request) {
         4: { cellWidth: 40 },    // Kategori Laporan
         5: { cellWidth: 60 },    // Detail Kejadian
         6: { cellWidth: 'auto' }, // Isi Laporan
-        7: { cellWidth: 40 },    // Lampiran
+        7: { cellWidth: 40, textColor: [37, 99, 235] },    // Lampiran
       },
       margin: { left: 10, right: 10 },
+      didDrawCell: (data: any) => {
+        if (data.section === 'body' && data.column.index === 7) {
+          const s = surveys[data.row.index];
+          const fileUrl = s.answers?.fileUrl;
+          if (fileUrl) {
+            (doc as any).link(data.cell.x, data.cell.y, data.cell.width, data.cell.height, { url: fileUrl });
+          }
+        }
+      }
     });
 
     // Footer halaman
