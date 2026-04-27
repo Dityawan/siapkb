@@ -18,6 +18,7 @@ interface FormData {
   // Common fields
   nama: string;
   alamat?: string;
+  alamatJalan?: string;
   alamat_pelapor_provinsi_id?: string;
   alamat_pelapor_provinsi_nama?: string;
   alamat_pelapor_kabupaten_id?: string;
@@ -76,11 +77,10 @@ const generalServiceOptions = [
   'IUD/Spiral',
   'Metode Operasi Wanita (MOW)/Tubektomi',
   'Metode Operasi Pria (MOP)/Vasektomi',
-  'Lainnya',
 ];
 
-const alokonOptions = ['Kondom', 'Pil', 'Suntik', 'Implan/Susuk KB', 'IUD/Spiral', 'Lainnya'];
-const bmhpOptions = ['Syringe/Suntikan', 'Lainnya'];
+const alokonOptions = ['Kondom', 'Pil', 'Suntik', 'Implan/Susuk KB', 'IUD/Spiral'];
+const bmhpOptions = ['Syringe/Suntikan'];
 
 export default function SurveiForm() {
   const [step, setStep] = useState<FormStep>('consent');
@@ -91,6 +91,7 @@ export default function SurveiForm() {
     defaultValues: {
       nama: '',
       alamat: '',
+      alamatJalan: '',
       alamat_pelapor_provinsi_id: '',
       alamat_pelapor_provinsi_nama: '',
       alamat_pelapor_kabupaten_id: '',
@@ -199,7 +200,7 @@ export default function SurveiForm() {
         alamatTempatPelayanan: data.alamatTempatPelayanan,
         jenisPelayanan: data.jenisPelayanan,
         jenisAlokonBmhp: data.jenisAlokonBmhp,
-        alamatLengkap: data.alamat,
+        alamatLengkap: data.alamatJalan ? `${data.alamatJalan}, ${data.alamat}` : data.alamat,
         kodePos: data.alamat_pelapor_kode_pos,
         unitKerja: data.unitKerja,
         alamatInstansi: data.alamatInstansi
@@ -252,9 +253,12 @@ export default function SurveiForm() {
         </CardHeader>
         <CardContent className="space-y-6 [&_[data-slot=label]]:mb-2">
           <div className="bg-blue-50 p-4 rounded-lg">
-            <p className="text-sm text-gray-700 leading-relaxed">
-              Silakan isi formulir aduan/laporan dengan jelas dan lengkap sesuai kondisi yang Anda alami. Data yang jelas dan lengkap akan membantu kami dalam menindaklanjuti aduan/laporan Anda dengan cepat. Aduan/laporan yang Anda sampaikan dapat membantu kami dalam meningkatkan kualitas pelayanan KB. Identitas dan laporan Anda akan dijaga kerahasiaannya.
-            </p>
+            <ul className="text-sm text-gray-700 leading-relaxed list-disc pl-5 space-y-1">
+              <li>Silakan isi formulir aduan/laporan dengan jelas dan lengkap sesuai kondisi yang Anda alami.</li>
+              <li>Data yang jelas dan lengkap akan membantu kami dalam menindaklanjuti aduan/laporan Anda dengan cepat.</li>
+              <li>Aduan/laporan yang Anda sampaikan dapat membantu kami dalam meningkatkan kualitas pelayanan KB.</li>
+              <li>Identitas dan laporan Anda akan dijaga kerahasiaannya.</li>
+            </ul>
           </div>
           <div className="space-y-2">
             <Label>Apakah anda bersedia mengisi form? *</Label>
@@ -384,6 +388,17 @@ export default function SurveiForm() {
                 onChange={handleAlamatPelaporChange}
                 errorMessage={alamatPelaporError}
               />
+            </div>
+
+            <div>
+              <Label htmlFor="alamatJalan">Alamat Lengkap *</Label>
+              <Textarea
+                id="alamatJalan"
+                {...register('alamatJalan', { required: 'Alamat lengkap wajib diisi' })}
+                placeholder="Tuliskan nama jalan/dusun dan RT/RW"
+                className={errors.alamatJalan ? 'border-red-500' : ''}
+              />
+              {errors.alamatJalan && <p className="text-red-500 text-sm mt-1">{errors.alamatJalan.message}</p>}
             </div>
 
             <div>
@@ -632,7 +647,7 @@ export default function SurveiForm() {
               <Input
                 id="tempatKejadian"
                 {...register('tempatKejadian', { required: 'Tempat kejadian wajib diisi' })}
-                placeholder="Masukkan nama tempat"
+                placeholder="Masukkan nama RS/Puskesmas/Klinik/Praktik Dokter/Praktik Bidan"
                 className={errors.tempatKejadian ? 'border-red-500' : ''}
               />
               {errors.tempatKejadian && <p className="text-red-500 text-sm mt-1">{errors.tempatKejadian.message}</p>}
@@ -652,7 +667,7 @@ export default function SurveiForm() {
 
             {isGeneralForm && (
               <div className="space-y-2">
-                <Label>Jenis pelayanan *</Label>
+                <Label>Jenis Pelayanan/Metode Kontrasepsi *</Label>
                 <input
                   type="hidden"
                   {...register('jenisPelayanan', { required: 'Jenis pelayanan wajib dipilih' })}
@@ -673,7 +688,7 @@ export default function SurveiForm() {
 
             {isAorB && (
               <div className="space-y-2">
-                <Label>Jenis pelayanan *</Label>
+                <Label>Jenis Pelayanan/Metode Kontrasepsi *</Label>
                 <input
                   type="hidden"
                   {...register('jenisPelayanan', { required: 'Jenis pelayanan wajib dipilih' })}
@@ -695,10 +710,10 @@ export default function SurveiForm() {
             {isCorD && (
               <>
                 <div className="space-y-2">
-                  <Label>Jenis Alokon/BMHP *</Label>
+                  <Label>Jenis *</Label>
                   <input
                     type="hidden"
-                    {...register('jenisAlokonBmhp', { required: 'Jenis Alokon/BMHP wajib dipilih' })}
+                    {...register('jenisAlokonBmhp', { required: 'Jenis wajib dipilih' })}
                   />
                   <select
                     value={selectedJenisAlokonBmhp || ''}
@@ -709,8 +724,8 @@ export default function SurveiForm() {
                     className={`w-full rounded-md border bg-background px-3 py-2 text-sm ${errors.jenisAlokonBmhp ? 'border-red-500' : 'border-input'}`}
                   >
                     <option value="">Pilih jenis</option>
-                    <option value="Alokon">Alokon</option>
-                    <option value="BMHP">BMHP</option>
+                    <option value="Alokon">Alat dan Obat Kontrasepsi</option>
+                    <option value="BMHP">Bahan Medis Habis Pakai</option>
                   </select>
                   {errors.jenisAlokonBmhp && <p className="text-red-500 text-sm mt-1">{errors.jenisAlokonBmhp.message}</p>}
                 </div>
@@ -718,7 +733,7 @@ export default function SurveiForm() {
                 {selectedJenisAlokonBmhp && (
                   <div className="space-y-2">
                     <Label>
-                      {selectedJenisAlokonBmhp === 'Alokon' ? 'Jenis Alokon *' : 'Jenis BMHP *'}
+                      {selectedJenisAlokonBmhp === 'Alokon' ? 'Jenis Alat dan Obat Kontrasepsi *' : 'Jenis Bahan Medis Habis Pakai *'}
                     </Label>
                     <input
                       type="hidden"
@@ -813,15 +828,16 @@ export default function SurveiForm() {
   if (step === 'complete') {
     return (
       <Card className="w-full max-w-2xl mx-auto">
-        <CardHeader>
+        <CardHeader className="text-center">
           <CardTitle>Terima Kasih!</CardTitle>
-          <CardDescription>Laporan Anda telah berhasil diterima</CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
           <div className="bg-green-50 p-4 rounded-lg border border-green-200">
-            <p className="text-green-800">
-              ✓ Laporan/Aduan Anda telah berhasil dikirimkan. Tim kami akan menindaklanjuti laporan Anda dengan cepat. Identitas dan laporan Anda akan dijaga kerahasiaannya.
-            </p>
+            <ul className="text-green-800 list-disc pl-5 space-y-1 text-sm">
+              <li>Terima kasih atas laporan/aduan yang Anda sampaikan.</li>
+              <li>Laporan/aduan Anda sudah kami terima dengan baik.</li>
+              <li>Tim kami akan memverifikasi dan menindaklanjuti laporan Anda.</li>
+            </ul>
           </div>
           <div className="rounded-lg border border-gray-200 bg-gray-50 p-4">
             <p className="text-sm text-gray-700">
