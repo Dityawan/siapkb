@@ -77,6 +77,7 @@ const generalServiceOptions = [
   'Kondom',
   'Metode Operasi Wanita (MOW) / Tubektomi',
   'Metode Operasi Pria (MOP) / Vasektomi',
+  'Lainnya',
 ];
 
 const alokonOptions = ['Pil KB', 'Suntik', 'Implan/Susuk KB', 'IUD/Spiral', 'Kondom'];
@@ -834,7 +835,6 @@ export default function SurveiForm() {
         <CardContent className="space-y-4">
           <div className="bg-green-50 p-4 rounded-lg border border-green-200">
             <ul className="text-green-800 list-disc pl-5 space-y-1 text-sm">
-              <li>Terima kasih atas laporan/aduan yang Anda sampaikan.</li>
               <li>Laporan/aduan Anda sudah kami terima dengan baik.</li>
               <li>Tim kami akan memverifikasi dan menindaklanjuti laporan Anda.</li>
             </ul>
