@@ -16,11 +16,11 @@ function getUserTypeLabel(userType: string) {
 function getCategoryLabel(mainCategory: string, reportCategory: string) {
   if (mainCategory === 'contraception') {
     const sub: Record<string, string> = { A: 'Komplikasi', B: 'Kegagalan', C: 'Kerusakan', D: 'Lainnya' };
-    return `Alat & obat kontrasepsi - ${sub[reportCategory] || reportCategory || ''}`;
+    return `Alat dan obat kontrasepsi - ${sub[reportCategory] || reportCategory || ''}`;
   }
   const map: Record<string, string> = {
     sdm: 'Tenaga Pemberi Layanan KB',
-    sarana: 'Sarana & Prasarana KB',
+    sarana: 'Sarana dan Prasarana Pelayanan KB',
     prosedur: 'Prosedur Layanan',
   };
   return map[mainCategory] || mainCategory || '-';
@@ -81,7 +81,8 @@ export async function GET(request: Request) {
       
       const profilInstansi = `Tipe: ${getUserTypeLabel(a.userType)}\nInstansi: ${s.company || '-'}\nUnit: ${a.unitKerja || '-'}\nAlamat Instansi: ${a.alamatInstansi || '-'}`;
 
-      const detailKejadian = `Tgl: ${a.tanggalKejadian || '-'}\nTempat: ${a.tempatKejadian || '-'}\nAlmt Tempat: ${a.alamatTempatPelayanan || '-'}\nPelayanan: ${a.jenisPelayanan || '-'}\nAlokon/BMHP: ${a.jenisAlokonBmhp || '-'}`;
+      const jenisLabel = a.mainCategory === 'sarana' ? 'Jenis Sarana/Prasarana yang Diperlukan' : 'Pelayanan';
+      const detailKejadian = `Tgl: ${a.tanggalKejadian || '-'}\nTempat: ${a.tempatKejadian || '-'}\nAlmt Tempat: ${a.alamatTempatPelayanan || '-'}\n${jenisLabel}: ${a.jenisPelayanan || '-'}\nAlokon/BMHP: ${a.jenisAlokonBmhp || '-'}\nNomor Batch: ${a.nomorBatch || '-'}\nTahun Produksi: ${a.tahunProduksi || '-'}`;
 
       return [
         i + 1,

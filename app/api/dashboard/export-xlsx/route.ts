@@ -68,8 +68,11 @@ export async function GET(request: Request) {
         'Kategori Laporan': getCategoryLabel(a.mainCategory, a.reportCategory),
         'Tanggal Kejadian': a.tanggalKejadian || '-',
         'Tempat Kejadian': a.tempatKejadian || '-',
-        'Jenis Pelayanan': a.jenisPelayanan || '-',
+        'Jenis Pelayanan/Metode Kontrasepsi': a.mainCategory === 'sarana' ? '-' : (a.jenisPelayanan || '-'),
+        'Jenis Sarana/Prasarana yang Diperlukan': a.mainCategory === 'sarana' ? (a.jenisPelayanan || '-') : '-',
         'Jenis Alokon/BMHP': a.jenisAlokonBmhp || '-',
+        'Nomor Batch': a.nomorBatch || '-',
+        'Tahun Produksi': a.tahunProduksi || '-',
         'Isi Laporan': s.message || '-',
         'Lampiran URL': a.fileUrl || '-',
       };

@@ -13,7 +13,7 @@ export default function SurveyPage() {
             Saluran Informasi dan Aduan Kualitas Pelayanan KB
           </p>
           <p className="text-sm text-gray-500 mt-2">
-            Keluhan Teratasi, KB makin berkualitas
+            Keluhan Tuntas, KB Makin Berkualitas
           </p>
         </div>
 

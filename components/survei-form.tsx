@@ -51,6 +51,8 @@ interface FormData {
   alamatTempatPelayanan: string;
   jenisPelayanan: string;
   jenisAlokonBmhp?: 'Alokon' | 'BMHP' | '';
+  nomorBatch?: string;
+  tahunProduksi?: string;
   isiLaporan: string;
   foto?: File | null;
 }
@@ -109,6 +111,8 @@ export default function SurveiForm() {
       alamatTempatPelayanan: '',
       jenisPelayanan: '',
       jenisAlokonBmhp: '',
+      nomorBatch: '',
+      tahunProduksi: '',
       isiLaporan: '',
     },
   });
@@ -170,12 +174,16 @@ export default function SurveiForm() {
     setReportCategory(null);
     setValue('jenisAlokonBmhp', '');
     setValue('jenisPelayanan', '');
+    setValue('nomorBatch', '');
+    setValue('tahunProduksi', '');
   };
 
   const handleSubCategorySelect = (category: IncidentCategory) => {
     setReportCategory(category);
     setValue('jenisAlokonBmhp', '');
     setValue('jenisPelayanan', '');
+    setValue('nomorBatch', '');
+    setValue('tahunProduksi', '');
   };
 
   const handleCategoryContinue = () => {
@@ -201,6 +209,8 @@ export default function SurveiForm() {
         alamatTempatPelayanan: data.alamatTempatPelayanan,
         jenisPelayanan: data.jenisPelayanan,
         jenisAlokonBmhp: data.jenisAlokonBmhp,
+        nomorBatch: data.nomorBatch,
+        tahunProduksi: data.tahunProduksi,
         alamatLengkap: data.alamatJalan ? `${data.alamatJalan}, ${data.alamat}` : data.alamat,
         kodePos: data.alamat_pelapor_kode_pos,
         unitKerja: data.unitKerja,
@@ -599,6 +609,8 @@ export default function SurveiForm() {
     const isGeneralForm = mainCategory !== null && mainCategory !== 'contraception';
     const isAorB = reportCategory === 'A' || reportCategory === 'B';
     const isCorD = reportCategory === 'C' || reportCategory === 'D';
+    const isContraceptionDamage = mainCategory === 'contraception' && reportCategory === 'C';
+    const isSaranaCategory = mainCategory === 'sarana';
     const detailJenisOptions = selectedJenisAlokonBmhp === 'Alokon' ? alokonOptions : bmhpOptions;
 
     const dateLabel = reportCategory === 'C'
@@ -668,7 +680,7 @@ export default function SurveiForm() {
 
             {isGeneralForm && (
               <div className="space-y-2">
-                <Label>Jenis Pelayanan/Metode Kontrasepsi *</Label>
+                <Label>{isSaranaCategory ? 'Jenis Sarana/Prasarana yang Diperlukan *' : 'Jenis Pelayanan/Metode Kontrasepsi *'}</Label>
                 <input
                   type="hidden"
                   {...register('jenisPelayanan', { required: 'Jenis pelayanan wajib dipilih' })}
@@ -678,7 +690,7 @@ export default function SurveiForm() {
                   onChange={(e) => setValue('jenisPelayanan', e.target.value, { shouldValidate: true })}
                   className={`w-full rounded-md border bg-background px-3 py-2 text-sm ${errors.jenisPelayanan ? 'border-red-500' : 'border-input'}`}
                 >
-                  <option value="">Pilih jenis pelayanan</option>
+                  <option value="">{isSaranaCategory ? 'Pilih jenis sarana/prasarana' : 'Pilih jenis pelayanan'}</option>
                     {generalServiceOptions.map((option) => (
                     <option key={option} value={option}>{option}</option>
                     ))}
@@ -753,6 +765,29 @@ export default function SurveiForm() {
                     {errors.jenisPelayanan && <p className="text-red-500 text-sm mt-1">{errors.jenisPelayanan.message}</p>}
                   </div>
                 )}
+              </>
+            )}
+
+            {isContraceptionDamage && (
+              <>
+                <div>
+                  <Label htmlFor="nomorBatch">Nomor batch</Label>
+                  <Input
+                    id="nomorBatch"
+                    {...register('nomorBatch')}
+                    placeholder="Masukkan nomor batch"
+                  />
+                </div>
+
+                <div>
+                  <Label htmlFor="tahunProduksi">Tahun Produksi</Label>
+                  <Input
+                    id="tahunProduksi"
+                    {...register('tahunProduksi')}
+                    placeholder="Masukkan tahun produksi"
+                    inputMode="numeric"
+                  />
+                </div>
               </>
             )}
 

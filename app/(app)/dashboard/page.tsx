@@ -638,7 +638,11 @@ export default function DashboardPage() {
                 
                 {selectedReport.fullData.answers?.jenisPelayanan && (
                   <div>
-                    <p className="font-semibold text-gray-500 mb-1">Jenis Pelayanan</p>
+                    <p className="font-semibold text-gray-500 mb-1">
+                      {selectedReport.fullData.answers?.mainCategory === 'sarana'
+                        ? 'Jenis Sarana/Prasarana yang Diperlukan'
+                        : 'Jenis Pelayanan'}
+                    </p>
                     <p>{selectedReport.fullData.answers.jenisPelayanan}</p>
                   </div>
                 )}
@@ -646,6 +650,20 @@ export default function DashboardPage() {
                   <div>
                     <p className="font-semibold text-gray-500 mb-1">Jenis Alokon/BMHP</p>
                     <p>{selectedReport.fullData.answers.jenisAlokonBmhp}</p>
+                  </div>
+                )}
+
+                {selectedReport.fullData.answers?.nomorBatch && (
+                  <div>
+                    <p className="font-semibold text-gray-500 mb-1">Nomor Batch</p>
+                    <p>{selectedReport.fullData.answers.nomorBatch}</p>
+                  </div>
+                )}
+
+                {selectedReport.fullData.answers?.tahunProduksi && (
+                  <div>
+                    <p className="font-semibold text-gray-500 mb-1">Tahun Produksi</p>
+                    <p>{selectedReport.fullData.answers.tahunProduksi}</p>
                   </div>
                 )}
 
