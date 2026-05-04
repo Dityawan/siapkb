@@ -489,7 +489,7 @@ export default function SurveiForm() {
                     className={errors.namaInstansi ? 'border-red-500' : ''}
                   />
                   {errors.namaInstansi && <p className="text-red-500 text-sm mt-1">{errors.namaInstansi.message}</p>}
-                  <p className="text-xs text-gray-500 mt-1">Contoh: Kementerian Kependudukan dan Pembangunan Keluarga/BKKBN</p>
+                  <p className="text-xs text-gray-500 mt-1">Contoh: Dinas Pengendalian Penduduk dan Keluarga Berencana (DPPKB) Kota Bekasi</p>
                 </div>
                 <div>
                   <Label htmlFor="unitKerja">Unit Kerja</Label>
@@ -498,7 +498,7 @@ export default function SurveiForm() {
                     {...register('unitKerja')}
                     placeholder="Masukkan unit kerja"
                   />
-                  <p className="text-xs text-gray-500 mt-1">Contoh: Direktorat Bina Kualitas Pelayanan KB</p>
+                  <p className="text-xs text-gray-500 mt-1">Contoh: UPTD Pengendalian Penduduk Kecamatan Bekasi Selatan</p>
                 </div>
                 <div>
                   <Label htmlFor="alamatInstansi">Alamat Instansi *</Label>
