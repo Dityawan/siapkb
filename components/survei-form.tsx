@@ -685,16 +685,25 @@ export default function SurveiForm() {
                   type="hidden"
                   {...register('jenisPelayanan', { required: 'Jenis pelayanan wajib dipilih' })}
                 />
-                <select
-                  value={watch('jenisPelayanan') || ''}
-                  onChange={(e) => setValue('jenisPelayanan', e.target.value, { shouldValidate: true })}
-                  className={`w-full rounded-md border bg-background px-3 py-2 text-sm ${errors.jenisPelayanan ? 'border-red-500' : 'border-input'}`}
-                >
-                  <option value="">{isSaranaCategory ? 'Pilih jenis sarana/prasarana' : 'Pilih jenis pelayanan'}</option>
+                {isSaranaCategory ? (
+                  <Input
+                    value={watch('jenisPelayanan') || ''}
+                    onChange={(e) => setValue('jenisPelayanan', e.target.value, { shouldValidate: true })}
+                    placeholder="Masukkan jenis sarana/prasarana yang diperlukan"
+                    className={errors.jenisPelayanan ? 'border-red-500' : ''}
+                  />
+                ) : (
+                  <select
+                    value={watch('jenisPelayanan') || ''}
+                    onChange={(e) => setValue('jenisPelayanan', e.target.value, { shouldValidate: true })}
+                    className={`w-full rounded-md border bg-background px-3 py-2 text-sm ${errors.jenisPelayanan ? 'border-red-500' : 'border-input'}`}
+                  >
+                    <option value="">Pilih jenis pelayanan</option>
                     {generalServiceOptions.map((option) => (
-                    <option key={option} value={option}>{option}</option>
+                      <option key={option} value={option}>{option}</option>
                     ))}
-                </select>
+                  </select>
+                )}
                 {errors.jenisPelayanan && <p className="text-red-500 text-sm mt-1">{errors.jenisPelayanan.message}</p>}
               </div>
             )}
